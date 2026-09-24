@@ -6,6 +6,7 @@
   <a href="https://winchxyz.github.io/credits-cubed/"><img alt="Play it live" src="https://img.shields.io/badge/play-live-111111?style=flat-square"></a>
   <a href="https://github.com/winchxyz/credits-cubed/actions/workflows/test.yml"><img alt="Tests" src="https://img.shields.io/github/actions/workflow/status/winchxyz/credits-cubed/test.yml?branch=main&style=flat-square&label=tests"></a>
   <a href="https://github.com/winchxyz/credits-cubed/deployments/github-pages"><img alt="GitHub Pages" src="https://img.shields.io/github/deployments/winchxyz/credits-cubed/github-pages?style=flat-square&label=pages"></a>
+  <a href="https://github.com/winchxyz/credits-cubed/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/winchxyz/credits-cubed?style=flat-square&logo=github&label=stars&color=111111"></a>
   <a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-111111?style=flat-square"></a>
   <img alt="three.js r169" src="https://img.shields.io/badge/three.js-r169-111111?style=flat-square&logo=threedotjs&logoColor=white">
   <img alt="No build step" src="https://img.shields.io/badge/build%20step-none-00b5e2?style=flat-square">

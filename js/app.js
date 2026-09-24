@@ -1182,7 +1182,24 @@ function boot() {
   }, 2000);
 }
 
+/** The header's GitHub button shows the live star count (cached an hour: the API allows 60 calls an hour per visitor). */
+async function showStars() {
+  const el = $('starCount');
+  if (!el) return;
+  const paint = n => { if (n > 0) { el.textContent = n.toLocaleString('en-US'); el.hidden = false; el.parentElement.setAttribute('aria-label', `Star Credits³ on GitHub, ${n} stars`); } };
+  const cached = store.get('stars', null);
+  if (cached) paint(cached.n);
+  if (cached && Date.now() - cached.at < 36e5) return;
+  try {
+    const r = await fetch('https://api.github.com/repos/winchxyz/credits-cubed');
+    if (!r.ok) return;
+    const n = (await r.json()).stargazers_count;
+    if (typeof n === 'number') { store.set('stars', { n, at: Date.now() }); paint(n); }
+  } catch {}
+}
+
 boot();
+showStars();
 // README screenshots only: tools/shoot.mjs opens the page with ?shoot=<scene>
 if (params.get('shoot')) import('../tools/shoot-scenarios.js').then(m => m.run(params.get('shoot'), window.C3)).catch(() => {});
 

@@ -11,7 +11,7 @@ const easeInOut = t => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 
 const AXES = [new THREE.Vector3(1, 0, 0), new THREE.Vector3(0, 1, 0), new THREE.Vector3(0, 0, 1)];
 
 /** A box with truly rounded edges: subdivided cube pushed onto an inner box + radius. */
-function roundedBox(size, radius, m = 4) {
+export function roundedBox(size, radius, m = 4) {
   const s = 2 * m + 1;
   const g = new THREE.BoxGeometry(1, 1, 1, s, s, s);
   const h = size / 2, inner = h - radius;
@@ -35,7 +35,7 @@ function roundedBox(size, radius, m = 4) {
   return g;
 }
 
-function roundedRect(w, r) {
+export function roundedRect(w, r) {
   const s = new THREE.Shape();
   const h = w / 2;
   s.moveTo(-h + r, -h);
@@ -47,7 +47,7 @@ function roundedRect(w, r) {
 }
 
 /** A soft studio for reflections: grey room, three softboxes. */
-function studio(renderer) {
+export function studio(renderer) {
   const env = new THREE.Scene();
   const room = new THREE.Mesh(new THREE.BoxGeometry(20, 12, 20), new THREE.MeshBasicMaterial({ color: 0x5c5c5c, side: THREE.BackSide }));
   env.add(room);
