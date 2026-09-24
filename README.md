@@ -107,13 +107,13 @@ Every Credit is drawn in your browser from its onchain seed and payment time, wi
 
 ```mermaid
 flowchart LR
-  A["Credits contract<br/>Distributed events"] -->|tools/scrape-events.mjs| B["credits-raw.csv<br/>id · seed · paidAt"]
-  B -->|tools/build-data.mjs| C["data/credits.bin<br/>2.2 MB"]
+  A["Credits contract<br/>Distributed events"] -->|"tools/scrape-events.mjs"| B["credits-raw.csv<br/>id · seed · paidAt"]
+  B -->|"tools/build-data.mjs"| C["data/credits.bin<br/>2.2 MB"]
   C --> D["js/data.js<br/>any id in O(1)"]
   D --> E["js/credit.js<br/>SHA-256 · plates · slips"]
   E --> F["js/face.js<br/>12 × 12 raster · 8 × 8 plates"]
   F --> G["js/scene.js<br/>three.js cube"]
-  E -. tools/verify-render.mjs .-> H[("tokenURI<br/>byte for byte")]
+  E -.->|"tools/verify-render.mjs"| H[("tokenURI<br/>byte for byte")]
 ```
 
 **The renderer is the contract's.** The Credits contract ([`0x9763…3043`](https://etherscan.io/address/0x97630aa70ab14ed9883b41dafccbc11349723043)) and its art contract are verified on [Sourcify](https://sourcify.dev). [`js/credit.js`](js/credit.js) ports `CreditDrawing` and `CreditArt` line for line: the SHA-256 of the 21-character transaction ID, one 64-bit plate per ink, the payment second picking one of 15 plate sets, the `/misprint` hash that slips plates by up to two pixels, the half-pixel re-centering, the premultiplied overprint palette, and the proof bar with one mark per `8` in the ID. `npm run verify:chain` fetches `tokenURI` for about 150 Credits (random ones plus every misprint and eights case) and compares the SVGs byte for byte.
