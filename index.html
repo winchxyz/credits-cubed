@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Credits³</title>
+<meta name="credits-data" content="data/credits.bin">
+<meta name="description" content="Put six Credits on a picture cube, scramble it, and turn it until every side is a Credit again. Every Credit is drawn from its onchain seed.">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Credits³">
+<meta property="og:description" content="Six Credits on a picture cube. Scramble it, turn it back, or stop anywhere: every side you turn is a new Credit.">
+<meta property="og:url" content="https://winchxyz.github.io/credits-cubed/">
+<meta property="og:image" content="https://winchxyz.github.io/credits-cubed/media/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://winchxyz.github.io/credits-cubed/media/og.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="css/style.css?v=4">
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="#" id="brand" aria-label="Credits cubed, home">Credits<span class="cubed">³</span></a>
+  <nav aria-label="Site">
+    <button type="button" id="navDaily" aria-pressed="false">Daily</button>
+    <a href="https://opensea.io/collection/credits" target="_blank" rel="noopener noreferrer">Collection ↗</a>
+    <button type="button" id="navTheme" aria-label="Switch color theme">Dark</button>
+    <button type="button" id="navMotion" aria-pressed="true">Motion on</button>
+    <button type="button" id="navSound" aria-pressed="true">Sound on</button>
+  </nav>
+</header>
+
+<main>
+  <div class="intro">
+    <h1>From Latin cubus: a die.</h1>
+    <p class="muted">A puzzle made from Credits</p>
+  </div>
+
+  <div class="works">
+    <section class="col" aria-label="Cube">
+      <div class="frame">
+        <div class="stage" id="stage" role="application" aria-label="Cube. Drag a layer to turn it, drag around the cube to look around. Keys U D L R F B turn the top, bottom, left, right, front and back layers, Shift turns them back.">
+          <div class="hud hud-tl" id="hudMode">3³ · 54 stickers</div>
+          <div class="hud hud-tr" id="hudTime">00:00.0</div>
+          <div class="hud hud-bl" id="hudTurns">0 turns</div>
+          <div class="hud hud-br" id="hudReg"><span id="hudRegText">Registered 54 / 54</span><span class="regbar" id="regbar" aria-hidden="true"></span></div>
+          <div class="hud hud-c" id="hudTip">Drag a layer to turn · drag around it to look</div>
+          <canvas class="hint-layer" id="hintLayer" aria-hidden="true"></canvas>
+          <canvas class="confetti" id="confetti" aria-hidden="true"></canvas>
+        </div>
+        <div class="plates" id="plates" role="group" aria-label="Inks shown on the cube">
+          <button type="button" class="plate" data-layer="0" aria-pressed="true"><i style="--ink:#00B5E2"></i>Cyan</button>
+          <button type="button" class="plate" data-layer="1" aria-pressed="true"><i style="--ink:#E4007C"></i>Magenta</button>
+          <button type="button" class="plate" data-layer="2" aria-pressed="true"><i style="--ink:#FFD100"></i>Yellow</button>
+          <button type="button" class="plate" data-layer="3" aria-pressed="true"><i class="k"></i>Black</button>
+        </div>
+      </div>
+      <div class="caption">
+        <span>Cube</span>
+        <div class="actions">
+          <button type="button" id="btnScramble" class="strong">Scramble</button>
+          <button type="button" id="btnRandomIds" title="Put six random Credits on the cube">Random IDs</button>
+          <button type="button" id="btnUndo">Undo</button>
+          <button type="button" id="btnHint">Hint</button>
+          <button type="button" id="btnSolve">Solve</button>
+        </div>
+      </div>
+      <div class="options">
+        <div class="opt" role="group" aria-label="Cube size">
+          <span class="muted">Size</span>
+          <button type="button" data-size="2" aria-pressed="false">2³</button>
+          <button type="button" data-size="3" aria-pressed="true">3³</button>
+          <button type="button" data-size="4" aria-pressed="false">4³</button>
+          <button type="button" data-size="8" aria-pressed="false" title="Every pixel of every Credit is a piece you can move">8³ pixels</button>
+        </div>
+        <div class="opt" role="group" aria-label="Scramble length">
+          <span class="muted">Scramble</span>
+          <button type="button" data-len="3" aria-pressed="false">3</button>
+          <button type="button" data-len="8" aria-pressed="true">8</button>
+          <button type="button" data-len="full" aria-pressed="false">Full</button>
+        </div>
+        <div class="opt" role="group" aria-label="Cube body">
+          <span class="muted">Body</span>
+          <button type="button" data-body="ink" aria-pressed="true">Ink</button>
+          <button type="button" data-body="paper" aria-pressed="false">Paper</button>
+          <button type="button" data-body="flat" aria-pressed="false" title="Sharp cubes and full-bleed stickers, so each side reads as one plain print">Flat</button>
+        </div>
+        <div class="opt">
+          <button type="button" id="btnPng">PNG ↓</button>
+        </div>
+      </div>
+      <p class="keys muted" id="keys">Keys: U D L R F B turn · Shift turns back · Alt turns the inner layer · M E S slices · X Y Z turn the whole cube · Arrows look · Space scramble · ⌫ undo · H hint</p>
+    </section>
+
+    <section class="col" aria-label="Sides">
+      <div class="frame">
+        <div class="net" id="net" role="group" aria-label="The six sides, unfolded">
+          <div class="side-cell" style="grid-area:u"><button type="button" class="side" data-face="0" aria-label="Top side"><canvas></canvas><span class="side-k">U</span><span class="side-id"></span></button><button type="button" class="dice" data-face="0" aria-label="Random Credit for the top side" title="Random Credit">↻</button></div>
+          <div class="side-cell" style="grid-area:l"><button type="button" class="side" data-face="4" aria-label="Left side"><canvas></canvas><span class="side-k">L</span><span class="side-id"></span></button><button type="button" class="dice" data-face="4" aria-label="Random Credit for the left side" title="Random Credit">↻</button></div>
+          <div class="side-cell" style="grid-area:f"><button type="button" class="side" data-face="2" aria-label="Front side"><canvas></canvas><span class="side-k">F</span><span class="side-id"></span></button><button type="button" class="dice" data-face="2" aria-label="Random Credit for the front side" title="Random Credit">↻</button></div>
+          <div class="side-cell" style="grid-area:r"><button type="button" class="side" data-face="1" aria-label="Right side"><canvas></canvas><span class="side-k">R</span><span class="side-id"></span></button><button type="button" class="dice" data-face="1" aria-label="Random Credit for the right side" title="Random Credit">↻</button></div>
+          <div class="side-cell" style="grid-area:b"><button type="button" class="side" data-face="5" aria-label="Back side"><canvas></canvas><span class="side-k">B</span><span class="side-id"></span></button><button type="button" class="dice" data-face="5" aria-label="Random Credit for the back side" title="Random Credit">↻</button></div>
+          <div class="side-cell" style="grid-area:d"><button type="button" class="side" data-face="3" aria-label="Bottom side"><canvas></canvas><span class="side-k">D</span><span class="side-id"></span></button><button type="button" class="dice" data-face="3" aria-label="Random Credit for the bottom side" title="Random Credit">↻</button></div>
+          <p class="net-note muted" id="netNote" style="grid-area:n">Target</p>
+        </div>
+        <form class="editor" id="editor" autocomplete="off">
+          <div class="ed-head">
+            <span id="edSide">Front side</span>
+            <span class="muted" id="edTier"></span>
+          </div>
+          <div class="ed-row">
+            <label for="edId" class="hash">#</label>
+            <input id="edId" name="credit" inputmode="numeric" pattern="[0-9]*" maxlength="6" spellcheck="false" aria-describedby="edMsg" aria-label="Credit number for this side">
+            <button type="button" id="edPrev" aria-label="Previous Credit">‹</button>
+            <button type="button" id="edNext" aria-label="Next Credit">›</button>
+            <button type="button" id="edRandom">Random</button>
+          </div>
+          <p class="ed-traits" id="edTraits"></p>
+          <p class="ed-seed muted" id="edSeed"></p>
+          <p class="ed-msg" id="edMsg" aria-live="polite"></p>
+        </form>
+        <div class="wallet" id="wallet" hidden>
+          <form class="w-row" id="walletForm" autocomplete="off">
+            <label for="walletAddr" class="muted">Wallet</label>
+            <input id="walletAddr" name="wallet" placeholder="0x… or name.eth" spellcheck="false">
+            <button type="submit" id="walletGo">Load</button>
+          </form>
+          <p class="w-msg muted" id="walletMsg" aria-live="polite">Loads the Credits a wallet holds, straight from the contract.</p>
+          <div class="w-grid" id="walletGrid"></div>
+          <div class="w-actions" id="walletActions" hidden>
+            <button type="button" id="walletFill">Fill six sides</button>
+            <span class="muted">Or tap one to put it on the selected side.</span>
+          </div>
+        </div>
+      </div>
+      <div class="caption">
+        <span id="sidesLabel">Sides</span>
+        <div class="actions">
+          <button type="button" id="btnRandom">Random</button>
+          <button type="button" id="btnOrdered" title="Six Credits that share a trait">Ordered</button>
+          <button type="button" id="btnWallet" aria-pressed="false" aria-controls="wallet">Wallet</button>
+          <button type="button" id="btnLive" aria-pressed="false" title="Show the sides as they are right now">Live</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <section class="remix" aria-labelledby="remixTitle">
+    <div class="frame">
+      <div class="remix-grid" id="remixGrid">
+        <figure class="remix-tile" data-face="0"><canvas></canvas><figcaption><span class="rt-k">U</span><span class="rt-state"></span><button type="button" class="rt-png">PNG ↓</button></figcaption></figure>
+        <figure class="remix-tile" data-face="4"><canvas></canvas><figcaption><span class="rt-k">L</span><span class="rt-state"></span><button type="button" class="rt-png">PNG ↓</button></figcaption></figure>
+        <figure class="remix-tile" data-face="2"><canvas></canvas><figcaption><span class="rt-k">F</span><span class="rt-state"></span><button type="button" class="rt-png">PNG ↓</button></figcaption></figure>
+        <figure class="remix-tile" data-face="1"><canvas></canvas><figcaption><span class="rt-k">R</span><span class="rt-state"></span><button type="button" class="rt-png">PNG ↓</button></figcaption></figure>
+        <figure class="remix-tile" data-face="5"><canvas></canvas><figcaption><span class="rt-k">B</span><span class="rt-state"></span><button type="button" class="rt-png">PNG ↓</button></figcaption></figure>
+        <figure class="remix-tile" data-face="3"><canvas></canvas><figcaption><span class="rt-k">D</span><span class="rt-state"></span><button type="button" class="rt-png">PNG ↓</button></figcaption></figure>
+      </div>
+    </div>
+    <div class="caption"><span id="remixTitle">New Credits · every side you turn is a new one</span><div class="actions"><button type="button" id="btnRemixAll">PNG ↓ all six</button></div></div>
+  </section>
+
+  <section class="construction" aria-label="About Credits³">
+    <div class="col">
+      <div class="copy" id="copy">
+        <p><strong>Credits³ is a puzzle made from Credits.</strong></p>
+        <p>Each Credit is a complete artwork.</p>
+        <p>Six Credits become one cube.</p>
+        <p>Each side is a Credit's own 12 × 12 raster, cut into stickers.</p>
+        <p>At 8³ every pixel is a piece.</p>
+        <p>A scramble misregisters the print.</p>
+        <p>Turn the layers until every side reads as its Credit again.</p>
+        <p>Or stop anywhere. Every side you turn is a new Credit.</p>
+        <p>A solved cube prints a receipt.</p>
+        <p>Each 8 on the receipt registers visually.</p>
+        <p><strong>A picture cube has 88,580,102,706,155,225,088,000 positions. One is registered.</strong></p>
+      </div>
+      <div class="caption"><span>Project</span><div class="actions"><button type="button" id="btnProjectPng">PNG ↓</button></div></div>
+    </div>
+    <div class="col">
+      <div class="frame diagram" id="diagram" aria-label="How the selected Credit becomes a side of the cube">
+        <div class="d-node" id="dCredit">Credit</div>
+        <div class="d-arrow">↓</div>
+        <div class="d-node d-seed"><span class="muted">X Money transaction ID</span><span id="dSeed"></span></div>
+        <div class="d-arrow">↓</div>
+        <div class="d-node d-hash"><span class="muted">SHA-256 · 256 bits</span><span id="dHash"></span></div>
+        <div class="d-arrow">↓</div>
+        <div class="d-plates" id="dPlates"></div>
+        <div class="d-arrow">↓</div>
+        <div class="d-out">
+          <figure><canvas id="dRaster" width="240" height="240"></canvas><figcaption id="dRasterLabel">12 × 12 raster</figcaption></figure>
+          <span class="d-to" aria-hidden="true">→</span>
+          <figure><canvas id="dCut" width="240" height="240"></canvas><figcaption id="dCutLabel">Cut 3 × 3</figcaption></figure>
+        </div>
+      </div>
+      <div class="caption"><span>Process</span><div class="actions"><span class="muted" id="dFoot"></span><button type="button" id="btnProcessPng">PNG ↓</button></div></div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <p>Credits³</p>
+    <p class="muted">Every Credit here is drawn in your browser from its onchain seed and payment time, with the contract's own renderer ported line for line. All 122,154 of them, no server.</p>
+    <p class="muted">Credits is a work by Jack Butcher. This puzzle is an unofficial fan project, not affiliated with Jack Butcher or Visualize Value.</p>
+  </footer>
+</main>
+
+<div class="receipt-layer" id="receiptLayer" hidden>
+  <div class="receipt-wrap" role="dialog" aria-modal="true" aria-labelledby="rcTitle">
+    <article class="receipt" id="receipt"></article>
+    <div class="receipt-actions">
+      <button type="button" id="rcPng">PNG ↓</button>
+      <a id="rcPost" href="#" target="_blank" rel="noopener noreferrer">Post on X ↗</a>
+      <button type="button" id="rcAgain" class="strong">Again</button>
+      <button type="button" id="rcClose">Close</button>
+    </div>
+    <p class="receipt-note muted" id="rcNote" hidden></p>
+  </div>
+</div>
+
+<div class="save-layer" id="saveLayer" hidden>
+  <div class="save-wrap" role="dialog" aria-modal="true" aria-label="Image to save">
+    <img id="saveImg" alt="">
+    <div class="save-row"><span class="muted">This view can't start downloads. Press and hold, or right-click, the image to save it.</span><button type="button" id="saveClose">Close</button></div>
+  </div>
+</div>
+
+<div class="sr-only" id="announce" aria-live="polite"></div>
+<script type="module" src="js/app.js?v=3"></script>
+</body>
+</html>

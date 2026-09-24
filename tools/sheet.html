@@ -1,0 +1,43 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Credits sheet</title>
+<style>
+  body { margin: 0; padding: 20px; font: 11px/1.4 ui-monospace, Menlo, monospace; background: #fff; color: #111; text-transform: uppercase; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 18px; }
+  figure { margin: 0; }
+  canvas { width: 100%; display: block; border: 1px solid #e3e3e3; image-rendering: pixelated; }
+  figcaption { margin-top: 6px; color: #666; }
+</style>
+<div class="grid" id="grid"></div>
+<script type="module">
+  import * as D from '../js/data.js';
+  import { credit, faceGrid, paintGrid, paintCredit } from '../js/face.js';
+  await D.load('../data/credits.bin');
+  const q = new URLSearchParams(location.search);
+  let ids = (q.get('ids') || '1,8,88,888,8888,88888').split(',').map(Number);
+  if (q.get('filter')) {
+    const [k, v] = q.get('filter').split(':');
+    const all = D.filter(t => String(t[k]).toLowerCase() === v.toLowerCase());
+    ids = all.slice(0, Number(q.get('n') || 48));
+  }
+  const mode = q.get('mode') || 'both';
+  const grid = document.getElementById('grid');
+  for (const id of ids) {
+    const c = credit(id);
+    if (!c) continue;
+    const fig = document.createElement('figure');
+    const cv = document.createElement('canvas');
+    const size = 240;
+    cv.width = mode === 'both' ? size * 2 + 12 : size; cv.height = size;
+    const ctx = cv.getContext('2d');
+    ctx.fillStyle = '#f2f2f2'; ctx.fillRect(0, 0, cv.width, cv.height);
+    if (mode !== 'face') paintCredit(ctx, c, 0, 0, size);
+    if (mode !== 'credit') paintGrid(ctx, faceGrid(c), mode === 'both' ? size + 12 : 0, 0, size);
+    fig.append(cv);
+    const cap = document.createElement('figcaption');
+    cap.textContent = `#${id} · ${c.colors} · ${c.register} · ${c.eightsLabel} · ${c.weight}`;
+    fig.append(cap);
+    grid.append(fig);
+  }
+  document.title = 'ready';
+</script>

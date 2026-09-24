@@ -1,0 +1,5 @@
+node_modules/
+shots/
+dist/
+tools/_chain-*.svg
+tools/_mine-*.svg

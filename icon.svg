@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- an isometric cube printed in three inks, with K for the edges -->
+  <path d="M32 6 56 19 32 32 8 19z" fill="#00b5e2"/>
+  <path d="M8 19 32 32v27L8 46z" fill="#e4007c"/>
+  <path d="M56 19 32 32v27l24-13z" fill="#ffd100"/>
+  <path d="M32 6 56 19v27L32 59 8 46V19zM8 19l24 13 24-13M32 32v27" fill="none" stroke="#111" stroke-width="3" stroke-linejoin="round"/>
+</svg>

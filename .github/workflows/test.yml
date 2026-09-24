@@ -1,0 +1,17 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # cube algebra and solved-by-eye checks on 2³, 3³ and 4³, then every packed Credit against the source CSV
+      - run: npm test

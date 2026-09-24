@@ -1,0 +1,28 @@
+{
+  "name": "credits-cubed",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A picture-cube puzzle made from Credits by Jack Butcher. Every Credit is drawn in the browser from its onchain seed.",
+  "license": "MIT",
+  "homepage": "https://winchxyz.github.io/credits-cubed/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/winchxyz/credits-cubed.git"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "node dev-server.cjs 8880",
+    "test": "node tools/test-cube.mjs && node tools/verify-data.mjs",
+    "verify:chain": "node tools/verify-render.mjs",
+    "verify:wallet": "node tools/test-wallet.mjs",
+    "scrape": "node tools/scrape-events.mjs",
+    "build:data": "node tools/build-data.mjs",
+    "build:artifact": "node tools/build.mjs",
+    "stats": "node tools/stats.mjs",
+    "rarity": "node tools/rarity.mjs",
+    "shots": "node tools/shoot.mjs"
+  }
+}

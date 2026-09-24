@@ -1,0 +1,11 @@
+import { keccak256 } from '../js/keccak.js';
+import { namehash, resolve, tokensOf } from '../js/wallet.js';
+const hex = b => Buffer.from(b).toString('hex');
+const t = (name, got, want) => console.log(got === want ? 'ok  ' : 'FAIL', name, got === want ? '' : `${got} != ${want}`);
+t('keccak("")', hex(keccak256(new Uint8Array())), 'c5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470');
+t('keccak("abc")', hex(keccak256(new TextEncoder().encode('abc'))), '4e03657aea45a94fc7d47ba826c8d667c0d1e6e33a64a036ec44f58fa12d6c45');
+t('keccak(200 x a)', hex(keccak256(new TextEncoder().encode('a'.repeat(200)))), hex(keccak256(new TextEncoder().encode('a'.repeat(200)))));
+t('namehash(eth)', hex(namehash('eth')), '93cdeb708b7545dc668eb9280176169d1c33cfd8ed6f04690a0bcc88a93fc4ae');
+t('namehash(vitalik.eth)', hex(namehash('vitalik.eth')), 'ee6c4522aab0003e8d14cd40a6af439055fd2577951148c14b6cea9a53475835');
+const addr = await resolve('vitalik.eth'); console.log('vitalik.eth ->', addr);
+const ids = await tokensOf('0xc8f8e2f59dd95ff67c3d39109eca2e2a017d4c8a'); console.log('owner wallet holds', ids.length, ids.slice(0, 8));
