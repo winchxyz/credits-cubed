@@ -1,9 +1,10 @@
 // A cube face is the Credit's own 12×12 raster window: SVG units 40–280, the
 // area the contract reserves so four 8×8 plates fit "even at the maximum
-// two-pixel slip". Misprints re-center by half pixels, so faces are kept as a
-// 24×24 half-pixel grid. 24 divides by 2, 3, 4, 6 and 12, so sticker edges
-// always fall on that grid. The proof bar (one mark per 8 in the transaction
-// id) moves from the Credit's outer corner into the face's bottom-right corner.
+// two-pixel slip". Faces are kept as a 24×24 half-pixel grid (the contract
+// places things in 10-unit steps), and every pixel lands on whole-pixel cells:
+// sticker edges fall every 12, 8 or 6 half pixels, so no pixel is ever cut in
+// two (see faceOrigin). The proof bar (one mark per 8 in the transaction id)
+// moves from the Credit's outer corner into the face's bottom-right corner.
 import { describe, proofBar, PALETTE, CSS, INKS } from './credit.js';
 import * as D from './data.js';
 
@@ -26,6 +27,19 @@ export function credit(id, plateMask) {
   return c;
 }
 
+/**
+ * Where a face draws the raster. The contract centres a misprint's inked area in
+ * its square, which puts it half a pixel off the grid whenever that area is an odd
+ * number of pixels wide (about one Credit in ten). On the cube that pixel would be
+ * cut at a sticker edge and turn up as a sliver when the stickers are mixed, so the
+ * face moves it half a pixel back toward the registered spot. Only faces snap:
+ * paintCredit, receipts and exports keep the contract's exact placement.
+ */
+export function faceOrigin(c) {
+  const snap = v => (((v - WINDOW) / 10) % 2 ? v - 10 * Math.sign(v - 80) : v);
+  return [snap(c.ox), snap(c.oy)];
+}
+
 /** 24×24 codes (0 paper, 1–15 ink masks; a black ground reads as K = 8). */
 export function faceGrid(c, visible = 15) {
   const g = new Uint8Array(GRID * GRID);
@@ -37,10 +51,11 @@ export function faceGrid(c, visible = 15) {
     for (let y = Math.max(0, gy); y < Math.min(GRID, gy + h / 10); y++)
       for (let x = Math.max(0, gx); x < Math.min(GRID, gx + w / 10); x++) g[y * GRID + x] = code;
   };
-  fill(c.ox, c.oy, 160, 160, PAPER);
+  const [ox, oy] = faceOrigin(c);
+  fill(ox, oy, 160, 160, PAPER);
   for (let y = -c.pad; y < 8 + c.pad; y++) for (let x = -c.pad; x < 8 + c.pad; x++) {
     const m = c.pixels[(y + 2) * 12 + x + 2] & visible;
-    if (m) fill(c.ox + x * 20, c.oy + y * 20, 20, 20, m);
+    if (m) fill(ox + x * 20, oy + y * 20, 20, 20, m);
   }
   for (const p of proofBar(c.eights)) fill(p.x - 40, p.y - 40, 20, 20, maskOf(p.color));
   return g;
@@ -108,11 +123,12 @@ export function paintPrinting(ctx, c, g, x, y, size, t, visible = 15) {
   if (t >= 1) { paintGrid(ctx, g, x, y, size); return; }
   const cell = size / GRID;
   const layers = [0, 1, 2, 3].filter(l => c.mask & visible & (1 << l));
+  const [ox, oy] = faceOrigin(c);   // land exactly where the face will be drawn
   ctx.save();
   ctx.fillStyle = c.eights >= 5 ? '#111111' : '#ffffff';
   ctx.fillRect(x, y, size, size);
   ctx.fillStyle = '#ffffff';
-  ctx.fillRect(x + (c.ox - WINDOW) / 10 * cell, y + (c.oy - WINDOW) / 10 * cell, 16 * cell, 16 * cell);
+  ctx.fillRect(x + (ox - WINDOW) / 10 * cell, y + (oy - WINDOW) / 10 * cell, 16 * cell, 16 * cell);
   ctx.beginPath(); ctx.rect(x, y, size, size); ctx.clip();
   ctx.globalCompositeOperation = 'multiply';
   const span = 1 / (layers.length + 0.6);
@@ -130,7 +146,7 @@ export function paintPrinting(ctx, c, g, x, y, size, t, visible = 15) {
       if (!((c.hash[bit >> 3] >> (7 - (bit & 7))) & 1)) continue;
       const rx = px0 + (i % 8), ry = py0 + ((i / 8) | 0);
       // raster pixel → SVG units: ox + (rx - 2) * 20
-      const sx = (c.ox + (rx - 2) * 20 - WINDOW) / 10 * cell, sy = (c.oy + (ry - 2) * 20 - WINDOW) / 10 * cell;
+      const sx = (ox + (rx - 2) * 20 - WINDOW) / 10 * cell, sy = (oy + (ry - 2) * 20 - WINDOW) / 10 * cell;
       ctx.fillRect(x + sx + offX, y + sy + offY, cell * 2 + 0.5, cell * 2 + 0.5);
     }
   });

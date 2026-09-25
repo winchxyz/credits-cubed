@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import * as D from '../js/data.js';
-import { credit, faceGrid, stickerSignature } from '../js/face.js';
+import { credit, faceGrid, faceOrigin, stickerSignature } from '../js/face.js';
 import { Cube, scramble, pathHome, simplify, mulberry32, invert, ROTATIONS } from '../js/cube.js';
 D.parse(new Uint8Array(fs.readFileSync(new URL('../data/credits.bin', import.meta.url))));
 const ids = [1, 3, 13, 1000, 11469, 122154]; // U R F D L B
@@ -50,4 +50,27 @@ for (const n of [2, 3, 4]) {
   const w = simplify([{ axis: 1, layers: [...Array(n).keys()], turns: 1 }, { axis: 0, layers: [n - 1], turns: 1 }], n);
   check(w.length === 1, `n=${n} rotation then R becomes one move -> ${JSON.stringify(w)}`);
 }
+// Every face is whole pixels, so a sticker edge (every 12, 8 or 6 half pixels) never cuts one in two,
+// and snapping a misprint's half-pixel centre never pushes ink out of the face window.
+const whole = g => {
+  for (let y = 0; y < 24; y += 2) for (let x = 0; x < 24; x += 2) {
+    const v = g[y * 24 + x];
+    if (g[y * 24 + x + 1] !== v || g[(y + 1) * 24 + x] !== v || g[(y + 1) * 24 + x + 1] !== v) return false;
+  }
+  return true;
+};
+let sliced = 0, outside = 0;
+for (let id = 1; id <= D.count(); id++) {
+  const c = credit(id);
+  if (!whole(faceGrid(c))) sliced++;
+  const [ox, oy] = faceOrigin(c);
+  for (let i = 0; i < 144; i++) {
+    if (!c.pixels[i]) continue;
+    const sx = ox + (i % 12 - 2) * 20, sy = oy + (((i / 12) | 0) - 2) * 20;
+    if (sx < 40 || sx + 20 > 280 || sy < 40 || sy + 20 > 280) outside++;
+  }
+}
+check(sliced === 0, `${sliced} Credits have a face pixel cut in half`);
+check(outside === 0, `${outside} inked pixels fall outside their face window`);
+console.log(`faces: ${D.count()} Credits checked for whole pixels`);
 console.log(fails ? `${fails} failures` : 'all cube tests pass');

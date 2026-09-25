@@ -734,20 +734,26 @@ function faceInfo(group, grids) {
   return { cells, original, from };
 }
 
-/** Texture cubes: the face's stickers laid out where a Credit keeps its 12 × 12 raster. */
+/**
+ * Texture cubes: the face rebuilt cell by cell from the stickers now on it (each turned
+ * as it sits), then printed where a Credit keeps its 12 × 12 raster. Working on the grid
+ * rather than scaling sticker images keeps every square crisp: no seams, no bleed.
+ */
 function paintCollage(ctx, group, x, y, size) {
+  const n = cube.n, m = GRID / n, out = new Uint8Array(GRID * GRID);
+  const grids = state.sides.map(id => { const c = credit(id); return c ? faceGrid(c, state.visible) : new Uint8Array(GRID * GRID); });
+  for (const { s, w } of group) {
+    const g = grids[s.face];
+    for (let yy = 0; yy < m; yy++) for (let xx = 0; xx < m; xx++) {
+      // cell (xx, yy) of a block turned k times clockwise comes from (sx, sy) of the original, as in stickerSignature
+      const sx = w.k === 0 ? xx : w.k === 1 ? yy : w.k === 2 ? m - 1 - xx : m - 1 - yy;
+      const sy = w.k === 0 ? yy : w.k === 1 ? m - 1 - xx : w.k === 2 ? m - 1 - yy : xx;
+      out[(w.row * m + yy) * GRID + w.col * m + xx] = g[(s.row * m + sy) * GRID + s.col * m + sx];
+    }
+  }
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(x, y, size, size);
-  const n = cube.n, win = size * 0.75, x0 = x + size * 0.125, y0 = y + size * 0.125, cell = win / n, src = FACE_PX / n;
-  ctx.imageSmoothingEnabled = true;
-  ctx.imageSmoothingQuality = 'high';
-  for (const { s, w } of group) {
-    ctx.save();
-    ctx.translate(x0 + (w.col + 0.5) * cell, y0 + (w.row + 0.5) * cell);
-    ctx.rotate(w.k * Math.PI / 2);
-    ctx.drawImage(faceCanvases[s.face], s.col * src, s.row * src, src, src, -cell / 2 - 0.25, -cell / 2 - 0.25, cell + 0.5, cell + 0.5);
-    ctx.restore();
-  }
+  paintGrid(ctx, out, x + size * 0.125, y + size * 0.125, size * 0.75);
 }
 
 function paintFace(ctx, f, x, y, size, groups = placements(), grids = isPixel() ? sideGrids() : null) {
